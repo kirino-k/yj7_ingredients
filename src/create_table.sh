@@ -17,12 +17,12 @@ if [ ! -e ${DIR_OUT} ]; then
   mkdir ${DIR_OUT}
 fi
 
-TMP_PATH=${DIR_TMP}/tmp_$(date +%Y%m%d)
-if [ -f ${TMP_PATH} ]; then
-  rm ${TMP_PATH}
+PATH_TMP=${DIR_TMP}/tmp_$(date +%Y%m%d)
+if [ -f ${PATH_TMP} ]; then
+  rm ${PATH_TMP}
 fi
 
-OUT_PATH=${DIR_OUT}/yj7_ingredients_$(date +%Y%m%d).csv
+PATH_OUT=${DIR_OUT}/yj7_ingredients_$(date +%Y%m%d).csv
 
 while read line; do
   if [[ $line =~ tp[0-9]{8} ]]; then
@@ -43,18 +43,18 @@ while read line; do
       <($command ${DIR_DL}/${file_name} | cut -d ',' -f 3) |
       grep -E '^[0-9A-Z]{12}' |
       sed -E "s/^([0-9A-Z]{7})([0-9A-Z]{5})(,.*)$/\1\3,$date/" |
-      sort -u >> ${TMP_PATH}
+      sort -u >> ${PATH_TMP}
   else
     $command ${DIR_DL}/${file_name} |
       cut -d ',' -f 2,3 | 
       grep -E '^[0-9A-Z]{12}' |
       sed -E "s/^([0-9A-Z]{7})([0-9A-Z]{5})(,.*)$/\1\3,$date/" |
-      sort -u >> ${TMP_PATH}
+      sort -u >> ${PATH_TMP}
   fi
 done < ${DIR_SRC}/file_info
 
 echo 'YJ7コード,成分名' > ${DIR_OUT}/output.csv
-cat ${TMP_PATH} |
+cat ${PATH_TMP} |
   awk -F ',' 'BEGIN {
     OFS = ","
   } {
@@ -70,5 +70,5 @@ cat ${TMP_PATH} |
   sort >> ${DIR_OUT}/output.csv
     
 cat ${DIR_OUT}/output.csv |
-  nkf -s > ${OUT_PATH}
+  nkf -s > ${PATH_OUT}
 
